@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 import streamlit as st
+from langchain.document_loaders import rss
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain import FAISS
@@ -17,7 +18,7 @@ langchain.verbose = False
 load_dotenv()
 
 
-def process_pdf(text):
+def process_rss(text):
     text_splitter = CharacterTextSplitter(
         separator="\n",
         chunk_size=1000,
@@ -34,10 +35,7 @@ def process_pdf(text):
     return knowledge_base
 
 
-def process_csv(text):
-    # Concatenate all the text from CSV columns
-    text = ' '.join(text)
-    # Split text into chunks
+def process_html(text):
     text_splitter = CharacterTextSplitter(
         separator="\n",
         chunk_size=1000,
@@ -62,12 +60,12 @@ def main():
 
     if file is not None:
         if file_type == "rss":
-            rss_reader = PdfReader(file)
+            rss_reader = rss.Reader(file)
             text = ""
             for page in rss_reader.pages:
                 text += page.extract_text()
-            knowledge_base = process_pdf(text)
-        if file_type == "html":
+            knowledge_base = process_rss()
+        elif file_type == "html":
 
             uploader = UnstructuredHTMLLoader()
             data =uploader.load()
